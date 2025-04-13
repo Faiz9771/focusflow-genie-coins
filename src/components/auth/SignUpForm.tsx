@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Coffee } from "lucide-react";
+import { Star } from "lucide-react";
 
 interface SignUpFormProps {
   email: string;
@@ -78,7 +78,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
               className="mr-2"
             >
-              <Coffee className="h-4 w-4" />
+              <Star className="h-4 w-4" />
             </motion.div>
           ) : null}
           {loading ? 'Signing Up...' : 'Sign Up'}

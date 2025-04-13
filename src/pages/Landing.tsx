@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -14,8 +13,10 @@ import {
   Star,
   Calendar,
   Clipboard,
-  Lightbulb
+  Lightbulb,
+  LogIn
 } from 'lucide-react';
+import AuthNav from '@/components/auth/AuthNav';
 
 const Landing = () => {
   const [session, setSession] = useState(null);
@@ -82,12 +83,10 @@ const Landing = () => {
     }
   ];
 
-  // Floating bubbles animation
   const bubbles = Array.from({ length: 20 }, (_, i) => i);
 
   return (
     <div className="min-h-screen overflow-hidden relative bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
-      {/* Animated background bubbles */}
       {bubbles.map((i) => (
         <motion.div
           key={i}
@@ -115,7 +114,6 @@ const Landing = () => {
         />
       ))}
 
-      {/* Navigation */}
       <header className="relative z-10 w-full px-6 py-4">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center">
@@ -136,18 +134,11 @@ const Landing = () => {
               Dashboard
             </Button>
           ) : (
-            <Button 
-              onClick={() => navigate('/auth')}
-              size="sm" 
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
-            >
-              Sign In
-            </Button>
+            <AuthNav />
           )}
         </div>
       </header>
 
-      {/* Hero Section */}
       <div className="relative container mx-auto px-4 py-20 flex flex-col items-center z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -181,135 +172,125 @@ const Landing = () => {
           </Button>
           {!session && (
             <Button 
-              onClick={() => navigate('/auth')}
               variant="outline" 
               size="lg"
-              className="border-purple-300 hover:bg-purple-50"
+              className="border-purple-300 hover:bg-purple-50 gap-2"
+              onClick={() => navigate('/auth')}
             >
-              Sign In
+              Login <LogIn className="h-4 w-4" />
             </Button>
           )}
         </motion.div>
 
-        {/* Feature Highlight */}
-        <div className="w-full max-w-4xl py-16" id="features">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            className="text-3xl font-bold text-center mb-12 text-purple-800"
-          >
-            Boost Productivity Everyday
-          </motion.h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20">
-            <div className="space-y-10">
-              {/* Feature item 1 */}
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }}
-                className="flex gap-4"
-              >
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-pink-500" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-800">Task Time Planning</h3>
-                  <p className="text-gray-600 mt-2">
-                    Plan your tasks effectively with our intuitive interface and time tracking features.
-                  </p>
-                </div>
-              </motion.div>
-              
-              {/* Feature item 2 */}
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-                className="flex gap-4"
-              >
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-                  <Clipboard className="h-6 w-6 text-purple-500" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-800">Customizable Views</h3>
-                  <p className="text-gray-600 mt-2">
-                    Organize your workspace the way you want with multiple view options.
-                  </p>
-                </div>
-              </motion.div>
-              
-              {/* Feature item 3 */}
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
-                className="flex gap-4"
-              >
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                  <Lightbulb className="h-6 w-6 text-green-500" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-800">Smart Suggestions</h3>
-                  <p className="text-gray-600 mt-2">
-                    Get personalized productivity tips based on your work patterns.
-                  </p>
-                </div>
-              </motion.div>
-            </div>
-            
-            {/* Feature showcase */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6 }}
-              className="relative"
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+          className="text-3xl font-bold text-center mb-12 text-purple-800"
+        >
+          Boost Productivity Everyday
+        </motion.h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20">
+          <div className="space-y-10">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex gap-4"
             >
-              <div className="bg-gradient-to-r from-orange-400 to-amber-300 rounded-lg p-6 shadow-lg">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-white">
-                    <div className="bg-gray-200 w-full h-full flex items-center justify-center">
-                      <Star className="w-6 h-6 text-amber-500" />
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-white">Daily Progress</h4>
-                    <p className="text-xs text-white/80">10 April 2025</p>
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center">
+                <Calendar className="h-6 w-6 text-pink-500" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-800">Task Time Planning</h3>
+                <p className="text-gray-600 mt-2">
+                  Plan your tasks effectively with our intuitive interface and time tracking features.
+                </p>
+              </div>
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="flex gap-4"
+            >
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                <Clipboard className="h-6 w-6 text-purple-500" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-800">Customizable Views</h3>
+                <p className="text-gray-600 mt-2">
+                  Organize your workspace the way you want with multiple view options.
+                </p>
+              </div>
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="flex gap-4"
+            >
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                <Lightbulb className="h-6 w-6 text-green-500" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-800">Smart Suggestions</h3>
+                <p className="text-gray-600 mt-2">
+                  Get personalized productivity tips based on your work patterns.
+                </p>
+              </div>
+            </motion.div>
+          </div>
+          
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            className="relative"
+          >
+            <div className="bg-gradient-to-r from-orange-400 to-amber-300 rounded-lg p-6 shadow-lg">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-white">
+                  <div className="bg-gray-200 w-full h-full flex items-center justify-center">
+                    <Star className="w-6 h-6 text-amber-500" />
                   </div>
                 </div>
-                
-                {/* Mock content blocks */}
-                <div className="space-y-3">
-                  <div className="h-4 bg-white/30 rounded w-3/4"></div>
-                  <div className="h-4 bg-white/30 rounded"></div>
-                  <div className="h-4 bg-white/30 rounded w-5/6"></div>
-                  <div className="h-4 bg-white/30 rounded w-1/2"></div>
+                <div>
+                  <h4 className="font-medium text-white">Daily Progress</h4>
+                  <p className="text-xs text-white/80">10 April 2025</p>
                 </div>
               </div>
               
-              {/* Floating element */}
-              <motion.div
-                animate={{
-                  y: [0, -8, 0],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  repeatType: "reverse"
-                }}
-                className="absolute -bottom-6 -right-6 bg-white rounded-lg shadow-lg p-4"
-              >
-                <div className="flex items-center gap-2">
-                  <Award className="h-5 w-5 text-amber-500" />
-                  <span className="font-medium">3-Day Streak!</span>
-                </div>
-              </motion.div>
+              <div className="space-y-3">
+                <div className="h-4 bg-white/30 rounded w-3/4"></div>
+                <div className="h-4 bg-white/30 rounded"></div>
+                <div className="h-4 bg-white/30 rounded w-5/6"></div>
+                <div className="h-4 bg-white/30 rounded w-1/2"></div>
+              </div>
+            </div>
+            
+            <motion.div
+              animate={{
+                y: [0, -8, 0],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                repeatType: "reverse"
+              }}
+              className="absolute -bottom-6 -right-6 bg-white rounded-lg shadow-lg p-4"
+            >
+              <div className="flex items-center gap-2">
+                <Award className="h-5 w-5 text-amber-500" />
+                <span className="font-medium">3-Day Streak!</span>
+              </div>
             </motion.div>
-          </div>
+          </motion.div>
         </div>
 
-        {/* Features Grid */}
         <div className="w-full max-w-4xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {features.map((feature, index) => (
@@ -338,7 +319,6 @@ const Landing = () => {
           </div>
         </div>
         
-        {/* Testimonials */}
         <div className="w-full max-w-4xl py-20" id="testimonials">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -375,7 +355,6 @@ const Landing = () => {
           </div>
         </div>
         
-        {/* FAQ Section */}
         <div className="w-full max-w-4xl py-16" id="faq">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -423,7 +402,6 @@ const Landing = () => {
           </div>
         </div>
         
-        {/* CTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -433,17 +411,28 @@ const Landing = () => {
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to boost your productivity?</h2>
           <p className="text-lg text-gray-700 mb-8">Join thousands of users and start your journey with Wyrd today!</p>
-          <Button 
-            onClick={() => navigate('/auth?tab=signup')}
-            size="lg" 
-            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white gap-2"
-          >
-            Start Free Trial <ArrowRight className="h-4 w-4" />
-          </Button>
+          
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button 
+              onClick={() => navigate('/auth?tab=signup')}
+              size="lg" 
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white gap-2"
+            >
+              Sign Up <ArrowRight className="h-4 w-4" />
+            </Button>
+            
+            <Button 
+              onClick={() => navigate('/auth')}
+              variant="outline"
+              size="lg"
+              className="border-purple-300 hover:bg-purple-50 gap-2"
+            >
+              Login <LogIn className="h-4 w-4" />
+            </Button>
+          </div>
         </motion.div>
       </div>
 
-      {/* Footer */}
       <div className="relative w-full py-6 text-center text-sm text-gray-500 z-10">
         <p>© 2025 Wyrd. Your cute productivity companion.</p>
       </div>

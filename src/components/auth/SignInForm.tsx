@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Laptop } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 interface SignInFormProps {
   email: string;
@@ -75,10 +75,10 @@ const SignInForm: React.FC<SignInFormProps> = ({
               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
               className="mr-2"
             >
-              <Laptop className="h-4 w-4" />
+              <Sparkles className="h-4 w-4" />
             </motion.div>
           ) : null}
-          {loading ? 'Signing In...' : 'Sign In'}
+          {loading ? 'Logging In...' : 'Login'}
         </Button>
       </motion.div>
       
