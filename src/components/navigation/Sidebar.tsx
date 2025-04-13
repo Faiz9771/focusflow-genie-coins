@@ -1,5 +1,5 @@
 
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { 
@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { getCoinBalance } from "@/lib/coinSystem";
 
 interface SidebarProps {
   open: boolean;
@@ -47,6 +48,13 @@ const SidebarItem = ({ icon, label, to, active = false, collapsed = false }: Sid
 };
 
 const Sidebar = ({ open, setOpen }: SidebarProps) => {
+  // Get current location
+  const location = useLocation();
+  const currentPath = location.pathname;
+  
+  // Get current coin balance
+  const coinBalance = getCoinBalance();
+  
   // Toggle sidebar
   const toggleSidebar = () => setOpen(!open);
 
@@ -97,7 +105,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
           {open && (
             <>
               <div className="text-sm font-medium">User Name</div>
-              <div className="text-xs text-muted-foreground">200 Coins</div>
+              <div className="text-xs text-muted-foreground">{coinBalance} Coins</div>
             </>
           )}
         </div>
@@ -106,12 +114,48 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
         
         {/* Navigation links */}
         <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-          <SidebarItem to="/" icon={<Home />} label="Dashboard" active={true} collapsed={!open} />
-          <SidebarItem to="/tasks" icon={<CheckSquare />} label="Tasks" collapsed={!open} />
-          <SidebarItem to="/calendar" icon={<CalendarDays />} label="Calendar" collapsed={!open} />
-          <SidebarItem to="/templates" icon={<LayoutTemplate />} label="Templates" collapsed={!open} />
-          <SidebarItem to="/social" icon={<Users />} label="Friends" collapsed={!open} />
-          <SidebarItem to="/coins" icon={<Coins />} label="Coin Shop" collapsed={!open} />
+          <SidebarItem 
+            to="/" 
+            icon={<Home />} 
+            label="Dashboard" 
+            active={currentPath === "/"} 
+            collapsed={!open} 
+          />
+          <SidebarItem 
+            to="/tasks" 
+            icon={<CheckSquare />} 
+            label="Tasks" 
+            active={currentPath === "/tasks"} 
+            collapsed={!open} 
+          />
+          <SidebarItem 
+            to="/calendar" 
+            icon={<CalendarDays />} 
+            label="Calendar" 
+            active={currentPath === "/calendar"} 
+            collapsed={!open} 
+          />
+          <SidebarItem 
+            to="/templates" 
+            icon={<LayoutTemplate />} 
+            label="Templates" 
+            active={currentPath === "/templates"} 
+            collapsed={!open} 
+          />
+          <SidebarItem 
+            to="/friends" 
+            icon={<Users />} 
+            label="Friends" 
+            active={currentPath === "/friends"} 
+            collapsed={!open} 
+          />
+          <SidebarItem 
+            to="/shop" 
+            icon={<Coins />} 
+            label="Coin Shop" 
+            active={currentPath === "/shop"} 
+            collapsed={!open} 
+          />
         </div>
         
         {/* Settings */}
