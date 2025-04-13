@@ -1,13 +1,13 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Flame, Trophy, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { earnCoins } from '@/lib/coinSystem';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { CustomProgress } from '@/components/ui/custom-progress';
 
 const StreakChallengeCard = () => {
   // In a real app, these would be fetched from state/API
@@ -58,7 +58,7 @@ const StreakChallengeCard = () => {
             </div>
           </div>
           
-          <Progress 
+          <CustomProgress 
             value={streakProgress} 
             className="h-2.5 bg-amber-100" 
             indicatorClassName="bg-amber-500"
