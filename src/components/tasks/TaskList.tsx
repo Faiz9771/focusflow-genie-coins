@@ -44,6 +44,11 @@ interface Task {
   category: TaskCategory;
   estimated_minutes: number | null;
   description: string | null;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+  completed_at: string | null;
+  reminder_time: string | null;
 }
 
 const getPriorityColor = (priority: TaskPriority) => {
@@ -243,7 +248,8 @@ const TaskList = () => {
   const loadTasks = async () => {
     setLoading(true);
     const fetchedTasks = await fetchTasks();
-    setTasks(fetchedTasks);
+    // Ensure the fetched tasks match our Task interface
+    setTasks(fetchedTasks as Task[]);
     setLoading(false);
   };
   

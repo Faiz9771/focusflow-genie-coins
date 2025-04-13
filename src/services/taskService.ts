@@ -52,9 +52,21 @@ export async function updateTaskStatus(taskId: string, status: string) {
 
 export async function logProductivity(taskId: string, startTime: Date) {
   try {
+    // Get the current user session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      console.error('User must be logged in to log productivity');
+      return false;
+    }
+    
     const { error } = await supabase
       .from('productivity_logs')
-      .insert([{ task_id: taskId, start_time: startTime.toISOString() }]);
+      .insert([{ 
+        task_id: taskId, 
+        start_time: startTime.toISOString(),
+        user_id: session.user.id
+      }]);
       
     if (error) throw error;
     return true;

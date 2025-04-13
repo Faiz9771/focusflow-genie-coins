@@ -75,13 +75,17 @@ export default function TaskForm({ onSuccess, onCancel, initialData }: TaskFormP
     try {
       setIsSubmitting(true);
       
-      const { dueDate, ...otherValues } = values;
+      // Prepare task data with proper field formatting for Supabase
       const taskData = {
-        ...otherValues,
-        due_date: dueDate ? dueDate.toISOString() : null,
-        estimated_minutes: values.estimatedMinutes,
+        title: values.title,
+        description: values.description || null,
+        priority: values.priority,
+        category: values.category,
+        due_date: values.dueDate ? values.dueDate.toISOString() : null,
+        estimated_minutes: values.estimatedMinutes
       };
       
+      // Handle editing vs. creating
       if (isEditing) {
         const { error } = await supabase
           .from('tasks')
@@ -91,9 +95,20 @@ export default function TaskForm({ onSuccess, onCancel, initialData }: TaskFormP
         if (error) throw error;
         toast.success("Task updated successfully!");
       } else {
+        // For new tasks, we need to include user_id
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError || !session) {
+          toast.error("You need to be logged in to create tasks");
+          return;
+        }
+        
         const { error } = await supabase
           .from('tasks')
-          .insert([taskData]);
+          .insert([{
+            ...taskData,
+            user_id: session.user.id
+          }]);
           
         if (error) throw error;
         toast.success("Task created successfully!");
