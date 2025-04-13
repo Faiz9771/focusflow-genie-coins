@@ -57,6 +57,7 @@ export async function logProductivity(taskId: string, startTime: Date) {
     
     if (sessionError || !session) {
       console.error('User must be logged in to log productivity');
+      toast.error("You need to be logged in to log productivity");
       return false;
     }
     
@@ -72,6 +73,7 @@ export async function logProductivity(taskId: string, startTime: Date) {
     return true;
   } catch (error) {
     console.error('Error logging productivity:', error);
+    toast.error("Failed to log productivity");
     return false;
   }
 }
@@ -98,6 +100,7 @@ export async function endProductivitySession(
     return true;
   } catch (error) {
     console.error('Error ending productivity session:', error);
+    toast.error("Failed to end productivity session");
     return false;
   }
 }

@@ -85,6 +85,8 @@ export default function TaskForm({ onSuccess, onCancel, initialData }: TaskFormP
         estimated_minutes: values.estimatedMinutes
       };
       
+      console.log("Task data to be submitted:", taskData);
+      
       // Handle editing vs. creating
       if (isEditing) {
         const { error } = await supabase
@@ -110,7 +112,10 @@ export default function TaskForm({ onSuccess, onCancel, initialData }: TaskFormP
             user_id: session.user.id
           }]);
           
-        if (error) throw error;
+        if (error) {
+          console.error("Error saving task:", error);
+          throw error;
+        }
         toast.success("Task created successfully!");
       }
       
@@ -238,7 +243,10 @@ export default function TaskForm({ onSuccess, onCancel, initialData }: TaskFormP
                     <Calendar
                       mode="single"
                       selected={field.value ?? undefined}
-                      onSelect={field.onChange}
+                      onSelect={(date) => {
+                        console.log("Date selected:", date);
+                        field.onChange(date);
+                      }}
                       disabled={(date) =>
                         date < new Date(new Date().setHours(0, 0, 0, 0))
                       }
