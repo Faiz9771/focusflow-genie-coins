@@ -9,12 +9,119 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      procrastination_patterns: {
+        Row: {
+          created_at: string
+          frequency: number
+          id: string
+          pattern_type: string
+          pattern_value: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          frequency: number
+          id?: string
+          pattern_type: string
+          pattern_value: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          frequency?: number
+          id?: string
+          pattern_type?: string
+          pattern_value?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      productivity_insights: {
+        Row: {
+          confidence_score: number
+          created_at: string
+          id: string
+          insight_type: string
+          insight_value: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          confidence_score: number
+          created_at?: string
+          id?: string
+          insight_type: string
+          insight_value: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number
+          created_at?: string
+          id?: string
+          insight_type?: string
+          insight_value?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      productivity_logs: {
+        Row: {
+          created_at: string
+          end_time: string | null
+          energy_level: number | null
+          focus_score: number | null
+          id: string
+          notes: string | null
+          start_time: string
+          task_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_time?: string | null
+          energy_level?: number | null
+          focus_score?: number | null
+          id?: string
+          notes?: string | null
+          start_time?: string
+          task_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string | null
+          energy_level?: number | null
+          focus_score?: number | null
+          id?: string
+          notes?: string | null
+          start_time?: string
+          task_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "productivity_logs_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           coins: number | null
           created_at: string | null
           id: string
+          notification_preferences: Json | null
+          pomodoro_preferences: Json | null
+          preferred_work_hours: Json | null
           streak_days: number | null
           updated_at: string | null
           username: string | null
@@ -24,6 +131,9 @@ export type Database = {
           coins?: number | null
           created_at?: string | null
           id: string
+          notification_preferences?: Json | null
+          pomodoro_preferences?: Json | null
+          preferred_work_hours?: Json | null
           streak_days?: number | null
           updated_at?: string | null
           username?: string | null
@@ -33,9 +143,60 @@ export type Database = {
           coins?: number | null
           created_at?: string | null
           id?: string
+          notification_preferences?: Json | null
+          pomodoro_preferences?: Json | null
+          preferred_work_hours?: Json | null
           streak_days?: number | null
           updated_at?: string | null
           username?: string | null
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          category: string
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          estimated_minutes: number | null
+          id: string
+          priority: string
+          reminder_time: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          estimated_minutes?: number | null
+          id?: string
+          priority?: string
+          reminder_time?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          estimated_minutes?: number | null
+          id?: string
+          priority?: string
+          reminder_time?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
