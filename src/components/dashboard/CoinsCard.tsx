@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Coins, TrendingUp, Gift } from "lucide-react";
 import { Link } from 'react-router-dom';
-import { getCoinBalance } from '@/lib/coinSystem';
+import { getCoinBalance, getCoinBalanceSync } from '@/lib/coinSystem';
 import { motion } from 'framer-motion';
 
 const CoinsCard = () => {
-  const [currentCoins, setCurrentCoins] = useState(0);
+  const [currentCoins, setCurrentCoins] = useState(getCoinBalanceSync());
   const [isLoading, setIsLoading] = useState(true);
   const todayEarned = 15; // This could be fetched from an API in a real app
   const weekProgress = 75; // percentage of weekly earning goal

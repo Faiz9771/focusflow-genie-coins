@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
-import { getCoinBalance, spendCoins } from '@/lib/coinSystem';
+import { getCoinBalance, getCoinBalanceSync, spendCoins } from '@/lib/coinSystem';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Coins, Sparkles, Palette, Zap, Award } from "lucide-react";
@@ -61,17 +61,36 @@ const shopItems: ShopItem[] = [
 ];
 
 const CoinShop = () => {
-  const [coinBalance, setCoinBalance] = useState(getCoinBalance());
+  const [coinBalance, setCoinBalance] = useState(getCoinBalanceSync());
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Fetch actual coin balance on component mount
+  useEffect(() => {
+    const fetchCoins = async () => {
+      try {
+        const coins = await getCoinBalance();
+        setCoinBalance(coins);
+      } catch (error) {
+        console.error("Error fetching coins:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchCoins();
+  }, []);
   
   const filteredItems = selectedCategory 
     ? shopItems.filter(item => item.category === selectedCategory)
     : shopItems;
     
-  const handlePurchase = (item: ShopItem) => {
-    if (spendCoins(item.price, item.name)) {
-      // In a real app, we would activate the purchased item here
-      setCoinBalance(getCoinBalance());
+  const handlePurchase = async (item: ShopItem) => {
+    const success = await spendCoins(item.price, item.name);
+    if (success) {
+      // Update the balance after purchase
+      const newBalance = await getCoinBalance();
+      setCoinBalance(newBalance);
     }
   };
   
@@ -88,7 +107,9 @@ const CoinShop = () => {
           
           <div className="flex items-center gap-2 mt-2 md:mt-0 bg-secondary p-2 px-4 rounded-lg">
             <Coins className="h-5 w-5 text-yellow-500" />
-            <span className="font-semibold text-lg">{coinBalance}</span>
+            <span className="font-semibold text-lg">
+              {isLoading ? "..." : coinBalance}
+            </span>
             <span className="text-muted-foreground">coins available</span>
           </div>
         </div>

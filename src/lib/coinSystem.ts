@@ -28,7 +28,7 @@ export const getCoinBalance = async () => {
 };
 
 // For backward compatibility with existing code
-// This function returns a cached value (120) instead of making a DB call
+// This function returns a cached or default value instead of making a DB call
 export const getCoinBalanceSync = () => {
   return 120; // Default value for components that expect a sync function
 };

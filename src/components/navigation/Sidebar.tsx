@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { getCoinBalance } from "@/lib/coinSystem";
+import { getCoinBalanceSync } from "@/lib/coinSystem";
 
 interface SidebarProps {
   open: boolean;
@@ -52,8 +52,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
   const location = useLocation();
   const currentPath = location.pathname;
   
-  // Get current coin balance
-  const coinBalance = getCoinBalance();
+  // Get current coin balance using the sync method
+  const coinBalance = getCoinBalanceSync();
   
   // Toggle sidebar
   const toggleSidebar = () => setOpen(!open);
