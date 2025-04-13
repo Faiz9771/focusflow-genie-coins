@@ -4,10 +4,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Coins, TrendingUp, Gift } from "lucide-react";
+import { Link } from 'react-router-dom';
+import { getCoinBalance } from '@/lib/coinSystem';
 
 const CoinsCard = () => {
-  // In a real app, these would be fetched from state/API
-  const currentCoins = 120;
+  // In a real app, this would use state to update when coins change
+  const currentCoins = getCoinBalance();
   const todayEarned = 15;
   const weekProgress = 75; // percentage of weekly earning goal
   
@@ -38,8 +40,8 @@ const CoinsCard = () => {
         
         <Progress value={weekProgress} className="h-2" />
         
-        <Button variant="outline" size="sm" className="w-full text-xs">
-          Visit Coin Shop
+        <Button variant="outline" size="sm" className="w-full text-xs" asChild>
+          <Link to="/shop">Visit Coin Shop</Link>
         </Button>
       </CardContent>
     </Card>

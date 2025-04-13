@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -20,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { earnCoins } from '@/lib/coinSystem';
 
 // Task types for our app
 type TaskPriority = "high" | "medium" | "low";
@@ -36,7 +36,7 @@ interface Task {
 }
 
 // Demo tasks data
-const demoTasks: Task[] = [
+const initialTasks: Task[] = [
   {
     id: "1",
     title: "Complete research paper outline",
@@ -124,7 +124,7 @@ const formatDueDate = (date: Date | null) => {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
 
-const TaskItem = ({ task }: { task: Task }) => {
+const TaskItem = ({ task, onToggleComplete }: { task: Task, onToggleComplete: (task: Task) => void }) => {
   return (
     <div className={cn(
       "flex items-center gap-3 p-3 rounded-lg border",
@@ -133,6 +133,7 @@ const TaskItem = ({ task }: { task: Task }) => {
     )}>
       <Checkbox 
         checked={task.completed}
+        onCheckedChange={() => onToggleComplete(task)}
         className={cn("rounded-full h-5 w-5", 
           task.completed ? "bg-focusflow-purple border-focusflow-purple text-primary-foreground" : "border-2"
         )}
@@ -146,7 +147,6 @@ const TaskItem = ({ task }: { task: Task }) => {
           {task.title}
         </p>
         
-        {/* Task details */}
         <div className="flex flex-wrap gap-2 mt-1">
           {task.dueDate && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -193,8 +193,40 @@ const TaskItem = ({ task }: { task: Task }) => {
 };
 
 const TaskList = () => {
-  const incompleteTasks = demoTasks.filter(task => !task.completed);
-  const completedTasks = demoTasks.filter(task => task.completed);
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  
+  const handleToggleComplete = (task: Task) => {
+    const updatedTasks = tasks.map(t => {
+      if (t.id === task.id) {
+        const newCompletedState = !t.completed;
+        
+        if (newCompletedState) {
+          let coinsEarned = 0;
+          switch (task.priority) {
+            case "high": 
+              coinsEarned = 10;
+              break;
+            case "medium":
+              coinsEarned = 5;
+              break;
+            case "low":
+              coinsEarned = 3;
+              break;
+          }
+          
+          earnCoins(coinsEarned, `Completing "${task.title}"`);
+        }
+        
+        return { ...t, completed: newCompletedState };
+      }
+      return t;
+    });
+    
+    setTasks(updatedTasks);
+  };
+  
+  const incompleteTasks = tasks.filter(task => !task.completed);
+  const completedTasks = tasks.filter(task => task.completed);
   
   return (
     <Card>
@@ -206,14 +238,16 @@ const TaskList = () => {
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* To-do tasks */}
         <div className="space-y-2">
           {incompleteTasks.map(task => (
-            <TaskItem key={task.id} task={task} />
+            <TaskItem 
+              key={task.id} 
+              task={task} 
+              onToggleComplete={handleToggleComplete}
+            />
           ))}
         </div>
         
-        {/* Completed tasks section */}
         {completedTasks.length > 0 && (
           <div className="pt-2">
             <div className="flex items-center gap-2 mb-3">
@@ -222,7 +256,11 @@ const TaskList = () => {
             </div>
             <div className="space-y-2">
               {completedTasks.map(task => (
-                <TaskItem key={task.id} task={task} />
+                <TaskItem 
+                  key={task.id} 
+                  task={task}
+                  onToggleComplete={handleToggleComplete} 
+                />
               ))}
             </div>
           </div>
