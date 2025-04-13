@@ -8,6 +8,8 @@ import CoinsCard from '@/components/dashboard/CoinsCard';
 import TaskSummaryCard from '@/components/dashboard/TaskSummaryCard';
 import GenieFeatureCard from '@/components/dashboard/GenieFeatureCard';
 import CoinRewardCard from '@/components/dashboard/CoinRewardCard';
+import MotivationalQuote from '@/components/motivation/MotivationalQuote';
+import StreakChallengeCard from '@/components/challenges/StreakChallengeCard';
 
 const Index = () => {
   return (
@@ -18,7 +20,10 @@ const Index = () => {
         {/* Main content - Task list */}
         <div className="md:col-span-2 space-y-6">
           <TaskList />
-          <GenieFeatureCard />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <MotivationalQuote />
+            <GenieFeatureCard />
+          </div>
         </div>
         
         {/* Sidebar widgets */}
@@ -28,6 +33,7 @@ const Index = () => {
             <StreakCard />
             <CoinsCard />
           </div>
+          <StreakChallengeCard />
           <CoinRewardCard />
         </div>
       </div>
