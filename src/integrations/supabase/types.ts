@@ -205,7 +205,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_task_analytics: {
+        Args: { user_id_param: string }
+        Returns: {
+          id: string
+          task_id: string
+          user_id: string
+          completion_time_minutes: number
+          actual_focus_score: number
+          completion_date: string
+          was_on_schedule: boolean
+          task_title: string
+          task_category: string
+          task_priority: string
+          estimated_minutes: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

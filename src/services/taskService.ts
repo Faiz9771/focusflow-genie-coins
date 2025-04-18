@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -52,7 +51,6 @@ export async function updateTaskStatus(taskId: string, status: string) {
 
 export async function logProductivity(taskId: string, startTime: Date) {
   try {
-    // Get the current user session
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     
     if (sessionError || !session) {
@@ -105,7 +103,6 @@ export async function endProductivitySession(
   }
 }
 
-// Fetch task analytics data from the database
 export async function fetchTaskAnalytics() {
   try {
     const { data: { session } } = await supabase.auth.getSession();
@@ -114,72 +111,57 @@ export async function fetchTaskAnalytics() {
       return null;
     }
 
-    // Fetch analytics data using raw SQL query since task_analytics is not in the TypeScript types yet
     const { data: analyticsData, error: analyticsError } = await supabase
-      .rpc('get_user_task_analytics', { user_id_param: session.user.id });
+      .rpc('get_user_task_analytics', { 
+        user_id_param: session.user.id 
+      });
 
     if (analyticsError) {
       console.error('Error fetching analytics:', analyticsError);
       throw analyticsError;
     }
 
-    // Fetch category data for completed tasks
     const { data: categoryData, error: categoryError } = await supabase
       .from('tasks')
       .select('category')
       .eq('user_id', session.user.id)
-      .eq('status', 'completed')
-      .then(result => {
-        // Process the data to count by category
-        if (result.error) return { data: [], error: result.error };
-        
-        const categoryCounts = result.data.reduce((acc, task) => {
-          const category = task.category || 'uncategorized';
-          acc[category] = (acc[category] || 0) + 1;
-          return acc;
-        }, {});
-        
-        return {
-          data: Object.entries(categoryCounts).map(([category, count]) => ({ 
-            category, 
-            count 
-          })),
-          error: null
-        };
-      });
+      .eq('status', 'completed');
 
     if (categoryError) throw categoryError;
 
-    // Fetch completion rate statistics
+    const categoryCounts = (categoryData || []).reduce((acc, task) => {
+      const category = task.category || 'uncategorized';
+      acc[category] = (acc[category] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const processedCategoryData = Object.entries(categoryCounts).map(([category, count]) => ({
+      category,
+      count
+    }));
+
     const { data: tasksData, error: tasksError } = await supabase
       .from('tasks')
       .select('status')
-      .eq('user_id', session.user.id)
-      .then(result => {
-        // Process the data to count by status
-        if (result.error) return { data: [], error: result.error };
-        
-        const statusCounts = result.data.reduce((acc, task) => {
-          const status = task.status || 'unknown';
-          acc[status] = (acc[status] || 0) + 1;
-          return acc;
-        }, {});
-        
-        return {
-          data: Object.entries(statusCounts).map(([status, count]) => ({ 
-            status, 
-            count 
-          })),
-          error: null
-        };
-      });
+      .eq('user_id', session.user.id);
 
     if (tasksError) throw tasksError;
 
+    const statusCounts = (tasksData || []).reduce((acc, task) => {
+      const status = task.status || 'unknown';
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const processedStatusData = Object.entries(statusCounts).map(([status, count]) => ({
+      status,
+      count
+    }));
+
     return {
       analytics: analyticsData || [],
-      categoryCompletion: categoryData || [],
-      completionStats: tasksData || []
+      categoryCompletion: processedCategoryData,
+      completionStats: processedStatusData
     };
   } catch (error) {
     console.error('Error fetching task analytics:', error);
@@ -188,7 +170,6 @@ export async function fetchTaskAnalytics() {
   }
 }
 
-// Fetch tasks for calendar view
 export async function fetchTasksForCalendar() {
   try {
     const { data: { session } } = await supabase.auth.getSession();
@@ -205,7 +186,6 @@ export async function fetchTasksForCalendar() {
       
     if (error) throw error;
     
-    // Transform data for calendar view
     return (data || []).map(task => ({
       id: task.id,
       title: task.title,
@@ -221,7 +201,6 @@ export async function fetchTasksForCalendar() {
   }
 }
 
-// Mock data for analytics - in a real app, this would fetch from the backend
 export function getTaskAnalytics() {
   return {
     productivityScore: 78,
@@ -238,9 +217,7 @@ export function getTaskAnalytics() {
   };
 }
 
-// Utility functions for adaptive scheduling
 export function suggestOptimalTimeForTask(taskCategory: string) {
-  // In a real app, this would analyze user data and return personalized suggestions
   const suggestions = {
     academic: "Morning (9AM-11AM)",
     work: "Early afternoon (1PM-3PM)",
@@ -251,8 +228,6 @@ export function suggestOptimalTimeForTask(taskCategory: string) {
 }
 
 export function breakTaskIntoSubtasks(taskTitle: string, taskDescription: string) {
-  // In a real app, this would use AI to break down complex tasks
-  // This is just a placeholder implementation
   return [
     `Research for ${taskTitle}`,
     `Create outline for ${taskTitle}`,
@@ -261,4 +236,3 @@ export function breakTaskIntoSubtasks(taskTitle: string, taskDescription: string
     `Finalize ${taskTitle}`
   ];
 }
-
