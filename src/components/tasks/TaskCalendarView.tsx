@@ -95,7 +95,7 @@ const TaskCalendarView: React.FC = () => {
                   mode="single"
                   selected={selectedDate}
                   onSelect={(date) => date && setSelectedDate(date)}
-                  className="w-full"
+                  className="w-full pointer-events-auto"
                   modifiers={{
                     hasTasks: (date) => hasTasksOnDate(date),
                   }}

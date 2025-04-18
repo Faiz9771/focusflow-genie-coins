@@ -114,46 +114,72 @@ export async function fetchTaskAnalytics() {
       return null;
     }
 
-    // Fetch analytics data
+    // Fetch analytics data using raw SQL query since task_analytics is not in the TypeScript types yet
     const { data: analyticsData, error: analyticsError } = await supabase
-      .from('task_analytics')
-      .select(`
-        *,
-        tasks (
-          title,
-          category,
-          priority,
-          due_date,
-          estimated_minutes
-        )
-      `)
-      .eq('user_id', session.user.id);
+      .rpc('get_user_task_analytics', { user_id_param: session.user.id });
 
-    if (analyticsError) throw analyticsError;
+    if (analyticsError) {
+      console.error('Error fetching analytics:', analyticsError);
+      throw analyticsError;
+    }
 
-    // Fetch completed tasks count by category
+    // Fetch category data for completed tasks
     const { data: categoryData, error: categoryError } = await supabase
       .from('tasks')
-      .select('category, count')
+      .select('category')
       .eq('user_id', session.user.id)
       .eq('status', 'completed')
-      .group('category');
+      .then(result => {
+        // Process the data to count by category
+        if (result.error) return { data: [], error: result.error };
+        
+        const categoryCounts = result.data.reduce((acc, task) => {
+          const category = task.category || 'uncategorized';
+          acc[category] = (acc[category] || 0) + 1;
+          return acc;
+        }, {});
+        
+        return {
+          data: Object.entries(categoryCounts).map(([category, count]) => ({ 
+            category, 
+            count 
+          })),
+          error: null
+        };
+      });
 
     if (categoryError) throw categoryError;
 
     // Fetch completion rate statistics
-    const { data: completionStats, error: completionError } = await supabase
+    const { data: tasksData, error: tasksError } = await supabase
       .from('tasks')
-      .select('status, count')
+      .select('status')
       .eq('user_id', session.user.id)
-      .group('status');
+      .then(result => {
+        // Process the data to count by status
+        if (result.error) return { data: [], error: result.error };
+        
+        const statusCounts = result.data.reduce((acc, task) => {
+          const status = task.status || 'unknown';
+          acc[status] = (acc[status] || 0) + 1;
+          return acc;
+        }, {});
+        
+        return {
+          data: Object.entries(statusCounts).map(([status, count]) => ({ 
+            status, 
+            count 
+          })),
+          error: null
+        };
+      });
 
-    if (completionError) throw completionError;
+    if (tasksError) throw tasksError;
 
     return {
       analytics: analyticsData || [],
       categoryCompletion: categoryData || [],
-      completionStats: completionStats || []
+      completionStats: tasksData || []
     };
   } catch (error) {
     console.error('Error fetching task analytics:', error);
@@ -235,3 +261,4 @@ export function breakTaskIntoSubtasks(taskTitle: string, taskDescription: string
     `Finalize ${taskTitle}`
   ];
 }
+
