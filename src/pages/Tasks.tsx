@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
 import TaskList from '@/components/tasks/TaskList';
-import TaskAnalytics from '@/components/tasks/TaskAnalytics';
+import EnhancedTaskAnalytics from '@/components/tasks/EnhancedTaskAnalytics';
+import TaskCalendarView from '@/components/tasks/TaskCalendarView';
 import CreateTaskDialog from '@/components/tasks/CreateTaskDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -134,47 +135,11 @@ const Tasks = () => {
           </TabsContent>
           
           <TabsContent value="analytics" className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <TaskAnalytics stats={analyticsData} />
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Productivity Timeline</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-center h-64 bg-secondary/50 rounded-md border">
-                    <p className="text-sm text-muted-foreground">
-                      Productivity chart visualization would render here
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="md:col-span-2">
-                <CardHeader>
-                  <CardTitle className="text-lg">Task Breakdown</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-center h-64 bg-secondary/50 rounded-md border">
-                    <p className="text-sm text-muted-foreground">
-                      Task category and priority distribution charts would render here
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <EnhancedTaskAnalytics />
           </TabsContent>
           
           <TabsContent value="calendar" className="mt-0">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-center h-96 bg-secondary/50 rounded-md border">
-                  <p className="text-sm text-muted-foreground">
-                    Task calendar view would render here
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            <TaskCalendarView />
           </TabsContent>
         </Tabs>
       </div>

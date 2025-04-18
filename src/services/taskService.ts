@@ -105,6 +105,96 @@ export async function endProductivitySession(
   }
 }
 
+// Fetch task analytics data from the database
+export async function fetchTaskAnalytics() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast.error("You need to be logged in to view analytics");
+      return null;
+    }
+
+    // Fetch analytics data
+    const { data: analyticsData, error: analyticsError } = await supabase
+      .from('task_analytics')
+      .select(`
+        *,
+        tasks (
+          title,
+          category,
+          priority,
+          due_date,
+          estimated_minutes
+        )
+      `)
+      .eq('user_id', session.user.id);
+
+    if (analyticsError) throw analyticsError;
+
+    // Fetch completed tasks count by category
+    const { data: categoryData, error: categoryError } = await supabase
+      .from('tasks')
+      .select('category, count')
+      .eq('user_id', session.user.id)
+      .eq('status', 'completed')
+      .group('category');
+
+    if (categoryError) throw categoryError;
+
+    // Fetch completion rate statistics
+    const { data: completionStats, error: completionError } = await supabase
+      .from('tasks')
+      .select('status, count')
+      .eq('user_id', session.user.id)
+      .group('status');
+
+    if (completionError) throw completionError;
+
+    return {
+      analytics: analyticsData || [],
+      categoryCompletion: categoryData || [],
+      completionStats: completionStats || []
+    };
+  } catch (error) {
+    console.error('Error fetching task analytics:', error);
+    toast.error("Failed to load analytics data");
+    return null;
+  }
+}
+
+// Fetch tasks for calendar view
+export async function fetchTasksForCalendar() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast.error("You need to be logged in to view calendar");
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .not('due_date', 'is', null);
+      
+    if (error) throw error;
+    
+    // Transform data for calendar view
+    return (data || []).map(task => ({
+      id: task.id,
+      title: task.title,
+      date: task.due_date,
+      status: task.status,
+      priority: task.priority,
+      category: task.category
+    }));
+  } catch (error) {
+    console.error('Error fetching tasks for calendar:', error);
+    toast.error("Failed to load calendar data");
+    return [];
+  }
+}
+
 // Mock data for analytics - in a real app, this would fetch from the backend
 export function getTaskAnalytics() {
   return {
