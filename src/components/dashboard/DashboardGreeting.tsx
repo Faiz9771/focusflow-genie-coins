@@ -1,9 +1,11 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { CalendarClock, ArrowRight } from "lucide-react";
+import PomodoroTimer from '../pomodoro/PomodoroTimer';
 
 const DashboardGreeting = () => {
+  const [isTimerOpen, setIsTimerOpen] = useState(false);
+  
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
@@ -42,11 +44,19 @@ const DashboardGreeting = () => {
           </div>
         </div>
         
-        <Button className="bg-focusflow-purple hover:bg-focusflow-purple-dark">
+        <Button 
+          className="bg-focusflow-purple hover:bg-focusflow-purple-dark"
+          onClick={() => setIsTimerOpen(true)}
+        >
           <span>Start Focus Session</span>
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
+
+      <PomodoroTimer 
+        isOpen={isTimerOpen}
+        onClose={() => setIsTimerOpen(false)}
+      />
     </div>
   );
 };
