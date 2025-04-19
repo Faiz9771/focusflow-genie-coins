@@ -152,6 +152,47 @@ export type Database = {
         }
         Relationships: []
       }
+      task_analytics: {
+        Row: {
+          actual_focus_score: number | null
+          completion_date: string | null
+          completion_time_minutes: number | null
+          created_at: string
+          id: string
+          task_id: string | null
+          user_id: string
+          was_on_schedule: boolean | null
+        }
+        Insert: {
+          actual_focus_score?: number | null
+          completion_date?: string | null
+          completion_time_minutes?: number | null
+          created_at?: string
+          id?: string
+          task_id?: string | null
+          user_id: string
+          was_on_schedule?: boolean | null
+        }
+        Update: {
+          actual_focus_score?: number | null
+          completion_date?: string | null
+          completion_time_minutes?: number | null
+          created_at?: string
+          id?: string
+          task_id?: string | null
+          user_id?: string
+          was_on_schedule?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_analytics_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           category: string
