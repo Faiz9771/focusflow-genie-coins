@@ -11,16 +11,30 @@ import TimerSettings from './TimerSettings';
 interface PomodoroTimerProps {
   isOpen: boolean;
   onClose: () => void;
+  initialWorkDuration?: number;
+  initialBreakDuration?: number;
 }
 
-const PomodoroTimer = ({ isOpen, onClose }: PomodoroTimerProps) => {
-  const [workDuration, setWorkDuration] = useState(25);
-  const [breakDuration, setBreakDuration] = useState(5);
-  const [timeLeft, setTimeLeft] = useState(workDuration * 60);
+const PomodoroTimer = ({ 
+  isOpen, 
+  onClose, 
+  initialWorkDuration = 25,
+  initialBreakDuration = 5
+}: PomodoroTimerProps) => {
+  const [workDuration, setWorkDuration] = useState(initialWorkDuration);
+  const [breakDuration, setBreakDuration] = useState(initialBreakDuration);
+  const [timeLeft, setTimeLeft] = useState(initialWorkDuration * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [isBreak, setIsBreak] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Initialize timer with provided durations
+    setWorkDuration(initialWorkDuration);
+    setBreakDuration(initialBreakDuration);
+    setTimeLeft(initialWorkDuration * 60);
+  }, [initialWorkDuration, initialBreakDuration]);
 
   useEffect(() => {
     let interval: number;
