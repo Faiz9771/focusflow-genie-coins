@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { CustomProgress } from "@/components/ui/custom-progress";
-import { PlayCircle, PauseCircle, StopCircle } from "lucide-react";
+import { PlayCircle, PauseCircle, StopCircle, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import StudyBuddy from './StudyBuddy';
+import TimerSettings from './TimerSettings';
 
 interface PomodoroTimerProps {
   isOpen: boolean;
@@ -13,9 +14,12 @@ interface PomodoroTimerProps {
 }
 
 const PomodoroTimer = ({ isOpen, onClose }: PomodoroTimerProps) => {
-  const [timeLeft, setTimeLeft] = useState(25 * 60); // 25 minutes in seconds
+  const [workDuration, setWorkDuration] = useState(25);
+  const [breakDuration, setBreakDuration] = useState(5);
+  const [timeLeft, setTimeLeft] = useState(workDuration * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [isBreak, setIsBreak] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -27,27 +31,25 @@ const PomodoroTimer = ({ isOpen, onClose }: PomodoroTimerProps) => {
       }, 1000) as unknown as number;
     } else if (timeLeft === 0) {
       if (!isBreak) {
-        // Work session completed, start break
         toast({
           title: "Work Session Complete!",
-          description: "Time for a 5-minute break.",
+          description: "Time for a break.",
         });
-        setTimeLeft(5 * 60); // 5 minute break
+        setTimeLeft(breakDuration * 60);
         setIsBreak(true);
       } else {
-        // Break completed, reset for next work session
         toast({
           title: "Break Complete!",
           description: "Ready to start another session?",
         });
-        setTimeLeft(25 * 60);
+        setTimeLeft(workDuration * 60);
         setIsBreak(false);
         setIsRunning(false);
       }
     }
 
     return () => clearInterval(interval);
-  }, [isRunning, timeLeft, isBreak, toast]);
+  }, [isRunning, timeLeft, isBreak, toast, workDuration, breakDuration]);
 
   const toggleTimer = () => {
     setIsRunning(!isRunning);
@@ -55,7 +57,7 @@ const PomodoroTimer = ({ isOpen, onClose }: PomodoroTimerProps) => {
 
   const resetTimer = () => {
     setIsRunning(false);
-    setTimeLeft(25 * 60);
+    setTimeLeft(workDuration * 60);
     setIsBreak(false);
   };
 
@@ -65,9 +67,28 @@ const PomodoroTimer = ({ isOpen, onClose }: PomodoroTimerProps) => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+  const handleSaveSettings = (newWorkDuration: number, newBreakDuration: number) => {
+    setWorkDuration(newWorkDuration);
+    setBreakDuration(newBreakDuration);
+    setTimeLeft(newWorkDuration * 60);
+    setShowSettings(false);
+    resetTimer();
+  };
+
   const progress = isBreak
-    ? ((5 * 60 - timeLeft) / (5 * 60)) * 100
-    : ((25 * 60 - timeLeft) / (25 * 60)) * 100;
+    ? ((breakDuration * 60 - timeLeft) / (breakDuration * 60)) * 100
+    : ((workDuration * 60 - timeLeft) / (workDuration * 60)) * 100;
+
+  if (showSettings) {
+    return (
+      <TimerSettings
+        workDuration={workDuration}
+        breakDuration={breakDuration}
+        onSave={handleSaveSettings}
+        onCancel={() => setShowSettings(false)}
+      />
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -97,8 +118,8 @@ const PomodoroTimer = ({ isOpen, onClose }: PomodoroTimerProps) => {
             />
             <p className="text-center text-sm text-muted-foreground">
               {isBreak 
-                ? `${Math.floor((timeLeft / (5 * 60)) * 100)}% of break left`
-                : `${Math.floor((timeLeft / (25 * 60)) * 100)}% of focus time left`
+                ? `${Math.floor((timeLeft / (breakDuration * 60)) * 100)}% of break left`
+                : `${Math.floor((timeLeft / (workDuration * 60)) * 100)}% of focus time left`
               }
             </p>
           </div>
@@ -124,6 +145,15 @@ const PomodoroTimer = ({ isOpen, onClose }: PomodoroTimerProps) => {
               className="h-14 w-14 rounded-full border-2 border-focusflow-purple hover:bg-focusflow-purple hover:text-white transition-all duration-300"
             >
               <StopCircle className="h-7 w-7" />
+            </Button>
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setShowSettings(true)}
+              className="h-14 w-14 rounded-full border-2 border-focusflow-purple hover:bg-focusflow-purple hover:text-white transition-all duration-300"
+            >
+              <Settings className="h-7 w-7" />
             </Button>
           </div>
         </div>
