@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { CustomProgress } from "@/components/ui/custom-progress";
 import { PlayCircle, PauseCircle, StopCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import StudyBuddy from './StudyBuddy';
 
 interface PomodoroTimerProps {
   isOpen: boolean;
@@ -70,35 +71,49 @@ const PomodoroTimer = ({ isOpen, onClose }: PomodoroTimerProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-gradient-to-b from-white to-purple-50 dark:from-gray-950 dark:to-gray-900">
         <DialogHeader>
-          <DialogTitle>
-            {isBreak ? "Break Time" : "Focus Session"}
+          <DialogTitle className="text-center text-2xl font-bold text-focusflow-purple">
+            {isBreak ? "Break Time! 🌟" : "Focus Session 🎯"}
           </DialogTitle>
         </DialogHeader>
         
         <div className="flex flex-col items-center gap-6 py-4">
-          <div className="text-4xl font-bold tracking-tighter">
+          <StudyBuddy isBreak={isBreak} isRunning={isRunning} />
+          
+          <div className="text-5xl font-bold tracking-tighter text-focusflow-purple">
             {formatTime(timeLeft)}
           </div>
           
-          <CustomProgress 
-            value={progress} 
-            className="w-full h-3"
-            indicatorClassName={isBreak ? "bg-green-500" : "bg-focusflow-purple"}
-          />
+          <div className="w-full space-y-2">
+            <CustomProgress 
+              value={progress} 
+              className="w-full h-4 rounded-full"
+              indicatorClassName={
+                isBreak 
+                  ? "bg-gradient-to-r from-green-400 to-green-500 transition-all duration-500" 
+                  : "bg-gradient-to-r from-focusflow-purple to-purple-500 transition-all duration-500"
+              }
+            />
+            <p className="text-center text-sm text-muted-foreground">
+              {isBreak 
+                ? `${Math.floor((timeLeft / (5 * 60)) * 100)}% of break left`
+                : `${Math.floor((timeLeft / (25 * 60)) * 100)}% of focus time left`
+              }
+            </p>
+          </div>
           
-          <div className="flex gap-3">
+          <div className="flex gap-4">
             <Button
               variant="outline"
               size="icon"
               onClick={toggleTimer}
-              className="h-12 w-12"
+              className="h-14 w-14 rounded-full border-2 border-focusflow-purple hover:bg-focusflow-purple hover:text-white transition-all duration-300"
             >
               {isRunning ? (
-                <PauseCircle className="h-6 w-6" />
+                <PauseCircle className="h-7 w-7" />
               ) : (
-                <PlayCircle className="h-6 w-6" />
+                <PlayCircle className="h-7 w-7" />
               )}
             </Button>
             
@@ -106,9 +121,9 @@ const PomodoroTimer = ({ isOpen, onClose }: PomodoroTimerProps) => {
               variant="outline"
               size="icon"
               onClick={resetTimer}
-              className="h-12 w-12"
+              className="h-14 w-14 rounded-full border-2 border-focusflow-purple hover:bg-focusflow-purple hover:text-white transition-all duration-300"
             >
-              <StopCircle className="h-6 w-6" />
+              <StopCircle className="h-7 w-7" />
             </Button>
           </div>
         </div>
