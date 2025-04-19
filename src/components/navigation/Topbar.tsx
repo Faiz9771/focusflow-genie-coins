@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getCoinBalance, getCoinBalanceSync } from '@/lib/coinSystem';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface TopbarProps {
   toggleSidebar: () => void;
@@ -26,7 +28,9 @@ interface TopbarProps {
 
 const Topbar = ({ toggleSidebar }: TopbarProps) => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [coins, setCoins] = useState(getCoinBalanceSync());
+  const [genieCredits, setGenieCredits] = useState(5); // Default to 5 credits
   
   useEffect(() => {
     const fetchCoins = async () => {
@@ -40,6 +44,21 @@ const Topbar = ({ toggleSidebar }: TopbarProps) => {
     
     fetchCoins();
   }, []);
+
+  const handleGenieClick = () => {
+    if (genieCredits <= 0) {
+      toast.error("No Genie credits remaining!", {
+        description: "Visit the shop to purchase more Genie credits.",
+        action: {
+          label: "Visit Shop",
+          onClick: () => navigate('/shop')
+        }
+      });
+      return;
+    }
+    // Continue with Genie functionality
+    setGenieCredits(prev => prev - 1);
+  };
 
   return (
     <header className="h-16 border-b bg-card flex items-center px-4 md:px-6">
@@ -65,11 +84,24 @@ const Topbar = ({ toggleSidebar }: TopbarProps) => {
       {/* Actions */}
       <div className="flex items-center gap-3">
         {/* Genie assistance button */}
-        <Button variant="ghost" size="sm" className="hidden md:flex items-center gap-1 text-focusflow-purple hover:text-focusflow-purple/80 hover:bg-focusflow-purple/5">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="hidden md:flex items-center gap-1 text-focusflow-purple hover:text-focusflow-purple/80 hover:bg-focusflow-purple/5"
+          onClick={handleGenieClick}
+        >
           <Sparkles className="h-4 w-4" />
           <span>Ask Genie</span>
-          <Badge variant="outline" className="ml-1 bg-focusflow-purple/10 hover:bg-focusflow-purple/20 text-focusflow-purple border-none">
-            5 coins
+          <Badge 
+            variant="outline" 
+            className={cn(
+              "ml-1 border-none",
+              genieCredits > 0 
+                ? "bg-focusflow-purple/10 hover:bg-focusflow-purple/20 text-focusflow-purple" 
+                : "bg-destructive/10 text-destructive"
+            )}
+          >
+            {genieCredits} credits left
           </Badge>
         </Button>
         
