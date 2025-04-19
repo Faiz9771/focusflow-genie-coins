@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +8,6 @@ import {
   Search,
   Menu,
   Sparkles,
-  Coins,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -19,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from '@/hooks/use-mobile';
+import { getCoinBalance, getCoinBalanceSync } from '@/lib/coinSystem';
 
 interface TopbarProps {
   toggleSidebar: () => void;
@@ -26,6 +26,20 @@ interface TopbarProps {
 
 const Topbar = ({ toggleSidebar }: TopbarProps) => {
   const isMobile = useIsMobile();
+  const [coins, setCoins] = useState(getCoinBalanceSync());
+  
+  useEffect(() => {
+    const fetchCoins = async () => {
+      try {
+        const coinBalance = await getCoinBalance();
+        setCoins(coinBalance);
+      } catch (error) {
+        console.error("Error fetching coins:", error);
+      }
+    };
+    
+    fetchCoins();
+  }, []);
 
   return (
     <header className="h-16 border-b bg-card flex items-center px-4 md:px-6">
@@ -57,12 +71,6 @@ const Topbar = ({ toggleSidebar }: TopbarProps) => {
           <Badge variant="outline" className="ml-1 bg-focusflow-purple/10 hover:bg-focusflow-purple/20 text-focusflow-purple border-none">
             5 coins
           </Badge>
-        </Button>
-        
-        {/* Coin balance */}
-        <Button variant="outline" size="sm" className="hidden md:flex items-center gap-1.5">
-          <Coins className="h-4 w-4 text-yellow-500" />
-          <span>120</span>
         </Button>
         
         {/* Notifications */}

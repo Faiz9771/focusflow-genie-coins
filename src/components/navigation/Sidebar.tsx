@@ -1,4 +1,5 @@
 
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -16,7 +17,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { getCoinBalanceSync } from "@/lib/coinSystem";
+import { getCoinBalance } from '@/lib/coinSystem';
 
 interface SidebarProps {
   open: boolean;
@@ -52,8 +53,22 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
   const location = useLocation();
   const currentPath = location.pathname;
   
-  // Get current coin balance using the sync method
-  const coinBalance = getCoinBalanceSync();
+  // State for coin balance
+  const [coinBalance, setCoinBalance] = useState(0);
+  
+  // Fetch coin balance
+  useEffect(() => {
+    const fetchCoins = async () => {
+      try {
+        const coins = await getCoinBalance();
+        setCoinBalance(coins);
+      } catch (error) {
+        console.error("Error fetching coin balance:", error);
+      }
+    };
+    
+    fetchCoins();
+  }, []);
   
   // Toggle sidebar
   const toggleSidebar = () => setOpen(!open);
