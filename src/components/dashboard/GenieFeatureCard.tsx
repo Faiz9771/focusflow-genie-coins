@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
@@ -7,11 +7,12 @@ import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import GenieRecommendationsModal from '@/components/pomodoro/GenieRecommendationsModal';
 import PomodoroTimer from '@/components/pomodoro/PomodoroTimer';
+import { supabase } from "@/integrations/supabase/client";
 
 const GenieFeatureCard = () => {
   const [showGenie, setShowGenie] = useState(false);
   const [showPomodoro, setShowPomodoro] = useState(false);
-  const [genieCredits, setGenieCredits] = useState(5); // Default to 5 credits
+  const [genieCredits, setGenieCredits] = useState<number | null>(null);
   const navigate = useNavigate();
   
   const [pomodoroSettings, setPomodoroSettings] = useState({
@@ -20,9 +21,45 @@ const GenieFeatureCard = () => {
   });
   
   const coinCost = 5;
+
+  useEffect(() => {
+    const fetchGenieCredits = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('genie_credits')
+        .eq('id', session.user.id)
+        .single();
+
+      if (error) {
+        console.error("Error fetching genie credits:", error);
+        return;
+      }
+
+      setGenieCredits(profile.genie_credits);
+    };
+
+    fetchGenieCredits();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
+      fetchGenieCredits();
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
   
-  const handleAskGenie = () => {
-    if (genieCredits <= 0) {
+  const handleAskGenie = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      toast.error("Please sign in to use Genie");
+      return;
+    }
+
+    if (!genieCredits || genieCredits <= 0) {
       toast.error("No Genie credits remaining!", {
         description: "Visit the shop to purchase more Genie credits.",
         action: {
@@ -34,11 +71,23 @@ const GenieFeatureCard = () => {
     }
 
     if (spendCoins(coinCost, "Ask Genie")) {
-      setGenieCredits(prev => prev - 1);
-      setShowGenie(true);
-      toast.success("Genie is analyzing your tasks...", {
-        description: "Your personalized schedule will be ready in a moment."
-      });
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ genie_credits: genieCredits - 1 })
+          .eq('id', session.user.id);
+
+        if (error) throw error;
+        
+        setGenieCredits(prev => (prev !== null ? prev - 1 : null));
+        setShowGenie(true);
+        toast.success("Genie is analyzing your tasks...", {
+          description: "Your personalized schedule will be ready in a moment."
+        });
+      } catch (error) {
+        console.error("Error updating genie credits:", error);
+        toast.error("Failed to use Genie credit");
+      }
     }
   };
 
@@ -72,13 +121,13 @@ const GenieFeatureCard = () => {
                 <Button 
                   className="bg-focusflow-purple hover:bg-focusflow-purple-dark"
                   onClick={handleAskGenie}
-                  disabled={genieCredits <= 0}
+                  disabled={!genieCredits || genieCredits <= 0}
                 >
                   <Sparkles className="h-4 w-4 mr-2" />
                   Ask Genie
                 </Button>
                 <span className="text-xs text-muted-foreground">
-                  {genieCredits} credits left ({coinCost} coins per use)
+                  {genieCredits ?? '...'} credits left ({coinCost} coins per use)
                 </span>
               </div>
             </div>

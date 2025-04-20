@@ -118,6 +118,7 @@ export type Database = {
           avatar_url: string | null
           coins: number | null
           created_at: string | null
+          genie_credits: number
           id: string
           notification_preferences: Json | null
           pomodoro_preferences: Json | null
@@ -130,6 +131,7 @@ export type Database = {
           avatar_url?: string | null
           coins?: number | null
           created_at?: string | null
+          genie_credits?: number
           id: string
           notification_preferences?: Json | null
           pomodoro_preferences?: Json | null
@@ -142,6 +144,7 @@ export type Database = {
           avatar_url?: string | null
           coins?: number | null
           created_at?: string | null
+          genie_credits?: number
           id?: string
           notification_preferences?: Json | null
           pomodoro_preferences?: Json | null

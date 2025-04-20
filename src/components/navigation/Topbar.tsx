@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";  // Add this import
+import { cn } from "@/lib/utils";
 import {
   Bell,
   Search,
@@ -22,6 +21,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { getCoinBalance, getCoinBalanceSync } from '@/lib/coinSystem';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { supabase } from "@/integrations/supabase/client";
 
 interface TopbarProps {
   toggleSidebar: () => void;
@@ -31,23 +31,46 @@ const Topbar = ({ toggleSidebar }: TopbarProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [coins, setCoins] = useState(getCoinBalanceSync());
-  const [genieCredits, setGenieCredits] = useState(5); // Default to 5 credits
+  const [genieCredits, setGenieCredits] = useState<number | null>(null);
   
   useEffect(() => {
-    const fetchCoins = async () => {
+    const fetchUserData = async () => {
       try {
-        const coinBalance = await getCoinBalance();
-        setCoins(coinBalance);
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) return;
+
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('genie_credits')
+          .eq('id', session.user.id)
+          .single();
+
+        if (error) throw error;
+        setGenieCredits(profile.genie_credits);
       } catch (error) {
-        console.error("Error fetching coins:", error);
+        console.error("Error fetching genie credits:", error);
       }
     };
-    
-    fetchCoins();
+
+    fetchUserData();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
+      fetchUserData();
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
-  const handleGenieClick = () => {
-    if (genieCredits <= 0) {
+  const handleGenieClick = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      toast.error("Please sign in to use Genie");
+      return;
+    }
+
+    if (genieCredits && genieCredits <= 0) {
       toast.error("No Genie credits remaining!", {
         description: "Visit the shop to purchase more Genie credits.",
         action: {
@@ -57,14 +80,26 @@ const Topbar = ({ toggleSidebar }: TopbarProps) => {
       });
       return;
     }
-    // Continue with Genie functionality
-    setGenieCredits(prev => prev - 1);
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ genie_credits: (genieCredits || 0) - 1 })
+        .eq('id', session.user.id);
+
+      if (error) throw error;
+      setGenieCredits(prev => (prev !== null ? prev - 1 : null));
+      
+      // Continue with Genie functionality
+    } catch (error) {
+      console.error("Error updating genie credits:", error);
+      toast.error("Failed to use Genie credit");
+    }
   };
 
   return (
     <header className="h-16 border-b bg-card flex items-center px-4 md:px-6">
       <div className="flex items-center gap-4 flex-1">
-        {/* Mobile menu toggle */}
         {isMobile && (
           <Button variant="ghost" size="icon" onClick={toggleSidebar}>
             <Menu className="h-5 w-5" />
@@ -72,7 +107,6 @@ const Topbar = ({ toggleSidebar }: TopbarProps) => {
           </Button>
         )}
         
-        {/* Search */}
         <div className="relative hidden md:flex items-center flex-1 max-w-md">
           <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
           <Input
@@ -82,14 +116,13 @@ const Topbar = ({ toggleSidebar }: TopbarProps) => {
         </div>
       </div>
       
-      {/* Actions */}
       <div className="flex items-center gap-3">
-        {/* Genie assistance button */}
         <Button 
           variant="ghost" 
           size="sm" 
           className="hidden md:flex items-center gap-1 text-focusflow-purple hover:text-focusflow-purple/80 hover:bg-focusflow-purple/5"
           onClick={handleGenieClick}
+          disabled={!genieCredits || genieCredits <= 0}
         >
           <Sparkles className="h-4 w-4" />
           <span>Ask Genie</span>
@@ -97,16 +130,15 @@ const Topbar = ({ toggleSidebar }: TopbarProps) => {
             variant="outline" 
             className={cn(
               "ml-1 border-none",
-              genieCredits > 0 
+              (genieCredits && genieCredits > 0)
                 ? "bg-focusflow-purple/10 hover:bg-focusflow-purple/20 text-focusflow-purple" 
                 : "bg-destructive/10 text-destructive"
             )}
           >
-            {genieCredits} credits left
+            {genieCredits ?? '...'} credits left
           </Badge>
         </Button>
         
-        {/* Notifications */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="relative">
