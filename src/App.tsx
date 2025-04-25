@@ -8,7 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import CoinShop from "./pages/CoinShop";
 import Tasks from "./pages/Tasks";
-import Calendar from "./pages/Calendar";
+import Planner from "./pages/Planner";
 import Templates from "./pages/Templates";
 import Friends from "./pages/Friends";
 import Landing from "./pages/Landing";
@@ -82,9 +82,9 @@ const App = () => (
                 <Tasks />
               </AuthRoute>
             } />
-            <Route path="/calendar" element={
+            <Route path="/planner" element={
               <AuthRoute>
-                <Calendar />
+                <Planner />
               </AuthRoute>
             } />
             <Route path="/templates" element={
@@ -95,6 +95,13 @@ const App = () => (
             <Route path="/friends" element={
               <AuthRoute>
                 <Friends />
+              </AuthRoute>
+            } />
+            
+            {/* Redirect /calendar to /planner since we're replacing it */}
+            <Route path="/calendar" element={
+              <AuthRoute>
+                <Navigate to="/planner" replace />
               </AuthRoute>
             } />
             

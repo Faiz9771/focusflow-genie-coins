@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { 
   Home, 
   LayoutTemplate, 
-  CalendarDays, 
+  FolderKanban, 
   CheckSquare, 
   Users, 
   Coins, 
@@ -144,10 +144,10 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             collapsed={!open} 
           />
           <SidebarItem 
-            to="/calendar" 
-            icon={<CalendarDays />} 
-            label="Calendar" 
-            active={currentPath === "/calendar"} 
+            to="/planner" 
+            icon={<FolderKanban />} 
+            label="Planner" 
+            active={currentPath === "/planner" || currentPath === "/calendar"} 
             collapsed={!open} 
           />
           <SidebarItem 
