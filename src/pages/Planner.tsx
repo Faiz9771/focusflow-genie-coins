@@ -10,7 +10,7 @@ import {
   Target, 
   FolderKanban, 
   BookOpen, 
-  Chart, 
+  ChartBarBig, 
   Sparkles, 
   Search,
   Plus
@@ -41,7 +41,7 @@ const Planner = () => {
         >
           <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 w-full h-auto gap-2">
             <TabsTrigger value="overview" className="flex items-center gap-2">
-              <Chart className="h-4 w-4" /> 
+              <ChartBarBig className="h-4 w-4" /> 
               <span className="hidden md:inline">Overview</span>
             </TabsTrigger>
             <TabsTrigger value="internship" className="flex items-center gap-2">
