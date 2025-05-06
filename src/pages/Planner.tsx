@@ -18,9 +18,9 @@ import {
 import TaskCalendarView from '@/components/tasks/TaskCalendarView';
 import GenieFeatureCard from '@/components/dashboard/GenieFeatureCard';
 import { motion } from 'framer-motion';
-import CreateTaskDialog from '@/components/tasks/CreateTaskDialog';
 import CreateInternshipDialog from '@/components/internship/CreateInternshipDialog';
 import InternshipsList from '@/components/internship/InternshipsList';
+import CreateHabitDialog from '@/components/habits/CreateHabitDialog';
 import { supabase } from '@/integrations/supabase/client';
 
 const Planner = () => {
@@ -43,38 +43,48 @@ const Planner = () => {
       const userId = session.user.id;
 
       // Fetch internships count
-      const { count: internshipsCount, error: internshipsError } = await supabase
-        .from('internships')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId);
-      
-      if (internshipsError) throw internshipsError;
-
-      // Fetch habits count (assuming habits table exists)
-      const { count: habitsCount, error: habitsError } = await supabase
-        .from('habits')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId);
-      
-      if (habitsError && habitsError.code !== 'PGRST116') {
-        // PGRST116 is "relation does not exist" which we might get if the table doesn't exist yet
-        throw habitsError;
+      let internshipsCount = 0;
+      try {
+        const { count, error } = await supabase
+          .from('internships')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId);
+        
+        if (!error) internshipsCount = count || 0;
+      } catch (error) {
+        console.error('Error fetching internships count:', error);
       }
 
-      // Fetch projects count (assuming projects table exists)
-      const { count: projectsCount, error: projectsError } = await supabase
-        .from('projects')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId);
-      
-      if (projectsError && projectsError.code !== 'PGRST116') {
-        throw projectsError;
+      // Fetch habits count
+      let habitsCount = 0;
+      try {
+        const { count, error } = await supabase
+          .from('habits')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId);
+        
+        if (!error) habitsCount = count || 0;
+      } catch (error) {
+        console.error('Error fetching habits count:', error);
+      }
+
+      // Fetch projects count
+      let projectsCount = 0;
+      try {
+        const { count, error } = await supabase
+          .from('projects')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId);
+        
+        if (!error) projectsCount = count || 0;
+      } catch (error) {
+        console.error('Error fetching projects count:', error);
       }
 
       setUserData({
-        internships: internshipsCount || 0,
-        habits: habitsCount || 0,
-        projects: projectsCount || 0,
+        internships: internshipsCount,
+        habits: habitsCount,
+        projects: projectsCount,
       });
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -247,9 +257,9 @@ const Planner = () => {
                     </CardTitle>
                     <CardDescription>Build and maintain productive routines</CardDescription>
                   </div>
-                  <Button size="sm">
-                    <Plus className="mr-1 h-4 w-4" /> Add Habit
-                  </Button>
+                  <CreateHabitDialog 
+                    onHabitCreated={() => fetchUserData()} 
+                  />
                 </CardHeader>
                 <CardContent>
                   <div className="text-center py-6">

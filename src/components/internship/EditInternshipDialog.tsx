@@ -6,7 +6,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import InternshipForm from './InternshipForm';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -58,10 +57,22 @@ const internshipFormSchema = z.object({
   notes: z.string().optional(),
 });
 
+type InternshipFormValues = z.infer<typeof internshipFormSchema>;
+
+type Internship = {
+  id: string;
+  company: string;
+  position: string;
+  status: "pending" | "applied" | "interview" | "offer" | "rejected";
+  application_date: string;
+  deadline_date?: string | null;
+  notes?: string | null;
+};
+
 interface EditInternshipDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  internship: any;
+  internship: Internship;
   onInternshipUpdated?: () => void;
 }
 
@@ -73,7 +84,7 @@ export default function EditInternshipDialog({
 }: EditInternshipDialogProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const form = useForm<z.infer<typeof internshipFormSchema>>({
+  const form = useForm<InternshipFormValues>({
     resolver: zodResolver(internshipFormSchema),
     defaultValues: {
       company: internship?.company || "",
@@ -85,7 +96,7 @@ export default function EditInternshipDialog({
     },
   });
 
-  async function onSubmit(values: z.infer<typeof internshipFormSchema>) {
+  async function onSubmit(values: InternshipFormValues) {
     if (!internship?.id) return;
     
     try {

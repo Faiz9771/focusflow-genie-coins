@@ -6,26 +6,25 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import InternshipForm from './InternshipForm';
+import HabitForm from './HabitForm';
 
-interface CreateInternshipDialogProps {
+interface CreateHabitDialogProps {
   trigger?: React.ReactNode;
-  onInternshipCreated?: () => void;
+  onHabitCreated?: () => void;
 }
 
-export default function CreateInternshipDialog({ 
+export default function CreateHabitDialog({ 
   trigger, 
-  onInternshipCreated 
-}: CreateInternshipDialogProps) {
+  onHabitCreated 
+}: CreateHabitDialogProps) {
   const [open, setOpen] = useState(false);
   
   const handleSuccess = () => {
     setOpen(false);
-    if (onInternshipCreated) onInternshipCreated();
+    if (onHabitCreated) onHabitCreated();
   };
 
   return (
@@ -34,18 +33,15 @@ export default function CreateInternshipDialog({
         {trigger || (
           <Button size="sm">
             <Plus className="mr-1 h-4 w-4" />
-            Add Application
+            Add Habit
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
-          <DialogTitle>Add Internship Application</DialogTitle>
-          <DialogDescription>
-            Track your internship applications and their status
-          </DialogDescription>
+          <DialogTitle>Create New Habit</DialogTitle>
         </DialogHeader>
-        <InternshipForm onSuccess={handleSuccess} onCancel={() => setOpen(false)} />
+        <HabitForm onSuccess={handleSuccess} onCancel={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   );

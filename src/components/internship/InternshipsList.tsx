@@ -2,9 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle 
+  CardContent
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,10 +35,20 @@ const statusLabels = {
   rejected: "Rejected",
 };
 
+type Internship = {
+  id: string;
+  company: string;
+  position: string;
+  status: "pending" | "applied" | "interview" | "offer" | "rejected";
+  application_date: string;
+  deadline_date?: string | null;
+  notes?: string | null;
+}
+
 export default function InternshipsList() {
-  const [internships, setInternships] = useState([]);
+  const [internships, setInternships] = useState<Internship[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingInternship, setEditingInternship] = useState(null);
+  const [editingInternship, setEditingInternship] = useState<Internship | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
 
   useEffect(() => {
@@ -70,7 +78,7 @@ export default function InternshipsList() {
     }
   }
 
-  async function handleDelete(id) {
+  async function handleDelete(id: string) {
     try {
       const { error } = await supabase
         .from('internships')
@@ -87,7 +95,7 @@ export default function InternshipsList() {
     }
   }
 
-  function handleEdit(internship) {
+  function handleEdit(internship: Internship) {
     setEditingInternship(internship);
     setShowEditDialog(true);
   }
@@ -187,7 +195,7 @@ export default function InternshipsList() {
   );
 }
 
-function getStatusColor(status) {
+function getStatusColor(status: string): string {
   switch (status) {
     case 'pending': return '#F59E0B';
     case 'applied': return '#3B82F6';
