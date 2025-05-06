@@ -35,11 +35,13 @@ const statusLabels = {
   rejected: "Rejected",
 };
 
+type InternshipStatus = "pending" | "applied" | "interview" | "offer" | "rejected";
+
 type Internship = {
   id: string;
   company: string;
   position: string;
-  status: "pending" | "applied" | "interview" | "offer" | "rejected";
+  status: InternshipStatus;
   application_date: string;
   deadline_date?: string | null;
   notes?: string | null;
@@ -69,7 +71,14 @@ export default function InternshipsList() {
         .order('application_date', { ascending: false });
 
       if (error) throw error;
-      setInternships(data || []);
+      
+      // Type casting the status to ensure it matches our InternshipStatus type
+      const typedData = data?.map(item => ({
+        ...item,
+        status: item.status as InternshipStatus
+      })) || [];
+      
+      setInternships(typedData);
     } catch (error) {
       console.error('Error fetching internships:', error);
       toast.error('Failed to load internships');
