@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -21,6 +20,11 @@ import { motion } from 'framer-motion';
 import CreateInternshipDialog from '@/components/internship/CreateInternshipDialog';
 import InternshipsList from '@/components/internship/InternshipsList';
 import CreateHabitDialog from '@/components/habits/CreateHabitDialog';
+import HabitsList from '@/components/habits/HabitsList';
+import CreateProjectDialog from '@/components/projects/CreateProjectDialog';
+import ProjectsList from '@/components/projects/ProjectsList';
+import CreateNoteDialog from '@/components/notes/CreateNoteDialog';
+import NotesList from '@/components/notes/NotesList';
 import { supabase } from '@/integrations/supabase/client';
 
 const Planner = () => {
@@ -262,16 +266,7 @@ const Planner = () => {
                   />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-6">
-                    <p className="text-muted-foreground">
-                      Track your daily habits and build consistent routines.
-                    </p>
-                    <div className="mt-4">
-                      <Button variant="outline">
-                        <Plus className="mr-1 h-4 w-4" /> Start Adding Habits
-                      </Button>
-                    </div>
-                  </div>
+                  <HabitsList />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -285,21 +280,12 @@ const Planner = () => {
                     </CardTitle>
                     <CardDescription>Monitor the progress of your projects</CardDescription>
                   </div>
-                  <Button size="sm">
-                    <Plus className="mr-1 h-4 w-4" /> New Project
-                  </Button>
+                  <CreateProjectDialog
+                    onProjectCreated={() => fetchUserData()}
+                  />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-6">
-                    <p className="text-muted-foreground">
-                      Track your projects and organize them by priority and deadline.
-                    </p>
-                    <div className="mt-4">
-                      <Button variant="outline">
-                        <Plus className="mr-1 h-4 w-4" /> Create Your First Project
-                      </Button>
-                    </div>
-                  </div>
+                  <ProjectsList />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -313,21 +299,12 @@ const Planner = () => {
                     </CardTitle>
                     <CardDescription>Organize your notes and thoughts</CardDescription>
                   </div>
-                  <Button size="sm">
-                    <Plus className="mr-1 h-4 w-4" /> Add Note
-                  </Button>
+                  <CreateNoteDialog
+                    onNoteCreated={() => fetchUserData()}
+                  />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-6">
-                    <p className="text-muted-foreground">
-                      Create and organize notes for your studies, projects, and ideas.
-                    </p>
-                    <div className="mt-4">
-                      <Button variant="outline">
-                        <Plus className="mr-1 h-4 w-4" /> Create Your First Note
-                      </Button>
-                    </div>
-                  </div>
+                  <NotesList />
                 </CardContent>
               </Card>
             </TabsContent>
