@@ -18,9 +18,68 @@ import {
 import TaskCalendarView from '@/components/tasks/TaskCalendarView';
 import GenieFeatureCard from '@/components/dashboard/GenieFeatureCard';
 import { motion } from 'framer-motion';
+import CreateTaskDialog from '@/components/tasks/CreateTaskDialog';
+import CreateInternshipDialog from '@/components/internship/CreateInternshipDialog';
+import InternshipsList from '@/components/internship/InternshipsList';
+import { supabase } from '@/integrations/supabase/client';
 
 const Planner = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [userData, setUserData] = useState({
+    internships: 0,
+    habits: 0,
+    projects: 0,
+  });
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  async function fetchUserData() {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+
+      const userId = session.user.id;
+
+      // Fetch internships count
+      const { count: internshipsCount, error: internshipsError } = await supabase
+        .from('internships')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+      
+      if (internshipsError) throw internshipsError;
+
+      // Fetch habits count (assuming habits table exists)
+      const { count: habitsCount, error: habitsError } = await supabase
+        .from('habits')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+      
+      if (habitsError && habitsError.code !== 'PGRST116') {
+        // PGRST116 is "relation does not exist" which we might get if the table doesn't exist yet
+        throw habitsError;
+      }
+
+      // Fetch projects count (assuming projects table exists)
+      const { count: projectsCount, error: projectsError } = await supabase
+        .from('projects')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+      
+      if (projectsError && projectsError.code !== 'PGRST116') {
+        throw projectsError;
+      }
+
+      setUserData({
+        internships: internshipsCount || 0,
+        habits: habitsCount || 0,
+        projects: projectsCount || 0,
+      });
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  }
 
   return (
     <MainLayout>
@@ -90,15 +149,15 @@ const Planner = () => {
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <span>Internship Applications</span>
-                          <span className="font-medium">3/5</span>
+                          <span className="font-medium">{userData.internships}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span>Daily Habits</span>
-                          <span className="font-medium">2/3</span>
+                          <span className="font-medium">{userData.habits}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span>Active Projects</span>
-                          <span className="font-medium">4</span>
+                          <span className="font-medium">{userData.projects}</span>
                         </div>
                       </div>
                     </CardContent>
@@ -169,14 +228,12 @@ const Planner = () => {
                     </CardTitle>
                     <CardDescription>Track your internship applications and progress</CardDescription>
                   </div>
-                  <Button size="sm">
-                    <Plus className="mr-1 h-4 w-4" /> Add Application
-                  </Button>
+                  <CreateInternshipDialog 
+                    onInternshipCreated={() => fetchUserData()}
+                  />
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground text-center py-12">
-                    Internship tracking feature coming soon!
-                  </p>
+                  <InternshipsList />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -195,9 +252,16 @@ const Planner = () => {
                   </Button>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground text-center py-12">
-                    Habit tracking feature coming soon!
-                  </p>
+                  <div className="text-center py-6">
+                    <p className="text-muted-foreground">
+                      Track your daily habits and build consistent routines.
+                    </p>
+                    <div className="mt-4">
+                      <Button variant="outline">
+                        <Plus className="mr-1 h-4 w-4" /> Start Adding Habits
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -216,9 +280,16 @@ const Planner = () => {
                   </Button>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground text-center py-12">
-                    Project tracking feature coming soon!
-                  </p>
+                  <div className="text-center py-6">
+                    <p className="text-muted-foreground">
+                      Track your projects and organize them by priority and deadline.
+                    </p>
+                    <div className="mt-4">
+                      <Button variant="outline">
+                        <Plus className="mr-1 h-4 w-4" /> Create Your First Project
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -237,9 +308,16 @@ const Planner = () => {
                   </Button>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground text-center py-12">
-                    Note management feature coming soon!
-                  </p>
+                  <div className="text-center py-6">
+                    <p className="text-muted-foreground">
+                      Create and organize notes for your studies, projects, and ideas.
+                    </p>
+                    <div className="mt-4">
+                      <Button variant="outline">
+                        <Plus className="mr-1 h-4 w-4" /> Create Your First Note
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -267,9 +345,25 @@ const Planner = () => {
                   <CardDescription>Identify patterns and optimize your time</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground text-center py-12">
-                    Procrastination analysis feature coming soon!
-                  </p>
+                  <div className="text-center py-6">
+                    <p className="text-muted-foreground">
+                      The procrastination analyzer will help you identify patterns in your work habits
+                      and suggest ways to optimize your productivity.
+                    </p>
+                    <div className="mt-4 space-y-4">
+                      <p>To use this feature, you'll need to:</p>
+                      <ol className="list-decimal list-inside text-left max-w-md mx-auto space-y-2">
+                        <li>Track your productivity sessions</li>
+                        <li>Log your distractions and breaks</li>
+                        <li>Use the pomodoro timer regularly</li>
+                      </ol>
+                      <div className="mt-6">
+                        <Button>
+                          <Sparkles className="mr-1 h-4 w-4" /> Analyze My Productivity
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
